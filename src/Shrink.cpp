@@ -20,7 +20,7 @@ void CShrink::setup(HANDLE pHandle, std::string animationName) {
   // hyprfocus_log(LOG, "Shrink percentage: {}", g_fShrinkPercentage);
 }
 
-void CShrink::onWindowFocus(CWindow *pWindow, HANDLE pHandle) {
+void CShrink::onWindowFocus(PHLWINDOW pWindow, HANDLE pHandle) {
   std::string currentAnimStyle =
       pWindow->m_vRealSize.getConfig()->internalStyle;
   hyprfocus_log(LOG, "Current animation style: {}", currentAnimStyle);

@@ -37,7 +37,7 @@ void IFocusAnimation::setup(HANDLE pHandle, std::string animationName) {
   // hyprfocus_log(LOG, "Setting up focus animation: {}", animationName);
 }
 
-void IFocusAnimation::onWindowFocus(CWindow *pWindow, HANDLE pHandle) {
+void IFocusAnimation::onWindowFocus(PHLWINDOW pWindow, HANDLE pHandle) {
   hyprfocus_log(LOG, "Base callback for animation: {}", m_szAnimationName);
   static const auto *inBezier =
       (Hyprlang::STRING const *)(HyprlandAPI::getConfigValue(

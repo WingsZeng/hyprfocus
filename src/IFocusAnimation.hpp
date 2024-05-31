@@ -7,7 +7,7 @@
 
 class IFocusAnimation {
 public:
-  virtual void onWindowFocus(CWindow *pWindow, HANDLE pHandle);
+  virtual void onWindowFocus(PHLWINDOW pWindow, HANDLE pHandle);
   virtual void init(HANDLE pHandle, std::string animationName);
   virtual void setup(HANDLE pHandle, std::string animationName);
 

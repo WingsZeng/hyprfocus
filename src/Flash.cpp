@@ -26,7 +26,7 @@ void CFlash::setup(HANDLE pHandle, std::string animationName) {
   // hyprfocus_log(LOG, "Active opacity: {}", g_fActiveOpacity);
 }
 
-void CFlash::onWindowFocus(CWindow *pWindow, HANDLE pHandle) {
+void CFlash::onWindowFocus(PHLWINDOW pWindow, HANDLE pHandle) {
   hyprfocus_log(LOG, "Flash onWindowFocus start");
   IFocusAnimation::onWindowFocus(pWindow, pHandle);
 
