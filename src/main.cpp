@@ -102,6 +102,11 @@ static void onActiveWindowChange(void *self, std::any data) {
             PHANDLE, "plugin:hyprfocus:animate_workspacechange")
             ->getDataStaticPtr();
 
+    static auto *const PMOUSEENABLED =
+        (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(
+            PHANDLE, "plugin:hyprfocus:mouse_enabled")
+            ->getDataStaticPtr();
+
     if (!**PHYPRFOCUSENABLED) {
       hyprfocus_log(LOG, "HyprFocus is disabled");
       return;
@@ -114,6 +119,11 @@ static void onActiveWindowChange(void *self, std::any data) {
 
     if (PWINDOW == g_pPreviouslyFocusedWindow) {
       hyprfocus_log(LOG, "Window is the same as the previous one");
+      return;
+    }
+
+    if (!**PMOUSEENABLED && g_bMouseWasPressed) {
+      hyprfocus_log(LOG, "Mouse was pressed, not animating");
       return;
     }
 
@@ -162,6 +172,8 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
   PHANDLE = handle;
 
   HyprlandAPI::addConfigValue(PHANDLE, "plugin:hyprfocus:enabled",
+                              Hyprlang::INT{0});
+  HyprlandAPI::addConfigValue(PHANDLE, "plugin:hyprfocus:mouse_enabled",
                               Hyprlang::INT{0});
   HyprlandAPI::addConfigValue(
       PHANDLE, "plugin:hyprfocus:animate_workspacechange", Hyprlang::INT{1});
