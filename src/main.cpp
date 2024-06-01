@@ -1,3 +1,4 @@
+#include <unordered_set>
 #include "Log.hpp"
 #include <hyprland/src/devices/IPointer.hpp>
 #include <hyprland/src/helpers/WLClasses.hpp>
@@ -15,6 +16,11 @@
 #include "Shrink.hpp"
 
 PHLWINDOW g_pPreviouslyFocusedWindow = nullptr;
+PHLWINDOW g_pPreviouslyClosedWindow = nullptr;
+// HACK: This is a hack to keep track of all opened windows,
+// since the openWindow event is called after the activeWindow.
+std::unordered_set<PHLWINDOW> g_OpenedWindows = {};
+
 bool g_bMouseWasPressed = false;
 bool g_bWorkspaceChanged = false;
 
@@ -107,6 +113,11 @@ static void onActiveWindowChange(void *self, std::any data) {
             PHANDLE, "plugin:hyprfocus:mouse_enabled")
             ->getDataStaticPtr();
 
+    static auto *const PANIMATECOUSEDBYCLOSE =
+        (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(
+            PHANDLE, "plugin:hyprfocus:animate_coused_by_close")
+            ->getDataStaticPtr();
+
     if (!**PHYPRFOCUSENABLED) {
       hyprfocus_log(LOG, "HyprFocus is disabled");
       return;
@@ -119,6 +130,21 @@ static void onActiveWindowChange(void *self, std::any data) {
 
     if (PWINDOW == g_pPreviouslyFocusedWindow) {
       hyprfocus_log(LOG, "Window is the same as the previous one");
+      return;
+    }
+
+    if (g_OpenedWindows.find(PWINDOW) == g_OpenedWindows.end()) {
+      hyprfocus_log(LOG, "Window is newly opened");
+      g_OpenedWindows.insert(PWINDOW);
+      g_pPreviouslyFocusedWindow = PWINDOW;
+      return;
+    }
+
+    if (!**PANIMATECOUSEDBYCLOSE &&
+        g_pPreviouslyFocusedWindow == g_pPreviouslyClosedWindow) {
+      hyprfocus_log(LOG, "Previously focused window was closed, not animating");
+      g_pPreviouslyFocusedWindow = PWINDOW;
+      g_pPreviouslyClosedWindow = nullptr;
       return;
     }
 
@@ -166,6 +192,29 @@ static void onMouseButton(void *self, std::any data) {
   }
 }
 
+// static void onWindowOpen(void *self, std::any data) {
+//   try {
+//     auto const PWINDOW = std::any_cast<PHLWINDOW>(data);
+//
+//   } catch (std::bad_any_cast &e) {
+//     hyprfocus_log(ERR, "Cast Error: {}", e.what());
+//   } catch (std::exception &e) {
+//     hyprfocus_log(ERR, "Error: {}", e.what());
+//   }
+// }
+
+static void onWindowClose(void *self, std::any data) {
+  try {
+    auto const PWINDOW = std::any_cast<PHLWINDOW>(data);
+    g_pPreviouslyClosedWindow = PWINDOW;
+    g_OpenedWindows.erase(PWINDOW);
+  } catch (std::bad_any_cast &e) {
+    hyprfocus_log(ERR, "Cast Error: {}", e.what());
+  } catch (std::exception &e) {
+    hyprfocus_log(ERR, "Error: {}", e.what());
+  }
+}
+
 // Do NOT change this function.
 APICALL EXPORT std::string PLUGIN_API_VERSION() { return HYPRLAND_API_VERSION; }
 
@@ -182,6 +231,8 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
                               Hyprlang::INT{1});
   HyprlandAPI::addConfigValue(PHANDLE, "plugin:hyprfocus:focus_animation",
                               Hyprlang::STRING("none"));
+  HyprlandAPI::addConfigValue(
+      PHANDLE, "plugin:hyprfocus:animate_coused_by_close", Hyprlang::INT{0});
   HyprlandAPI::addDispatcher(PHANDLE, "animatefocused", &flashCurrentWindow);
 
 #ifdef FLASH
@@ -215,6 +266,20 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
         onMouseButton(self, data);
       });
   hyprfocus_log(LOG, "Registered mouse button callback");
+
+  //  static auto P3 = HyprlandAPI::registerCallbackDynamic(
+  //      PHANDLE, "openWindow",
+  //      [&](void *self, SCallbackInfo &info, std::any data) {
+  //        onWindowOpen(self, data);
+  //      });
+  //  hyprfocus_log(LOG, "Registered open window callback");
+
+  static auto P4 = HyprlandAPI::registerCallbackDynamic(
+      PHANDLE, "closeWindow",
+      [&](void *self, SCallbackInfo &info, std::any data) {
+        onWindowClose(self, data);
+      });
+  hyprfocus_log(LOG, "Registered close window callback");
 
   HyprlandAPI::reloadConfig();
 
