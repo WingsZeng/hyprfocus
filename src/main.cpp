@@ -168,7 +168,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
   HyprlandAPI::addConfigValue(PHANDLE, "plugin:hyprfocus:animate_floating",
                               Hyprlang::INT{1});
   HyprlandAPI::addConfigValue(PHANDLE, "plugin:hyprfocus:focus_animation",
-                              Hyprlang::STRING("flash"));
+                              Hyprlang::STRING("none"));
   HyprlandAPI::addDispatcher(PHANDLE, "animatefocused", &flashCurrentWindow);
 
 #ifdef FLASH
