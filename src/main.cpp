@@ -123,6 +123,7 @@ static void onActiveWindowChange(void *self, std::any data) {
 
     if (!**PMOUSEENABLED && g_bMouseWasPressed) {
       hyprfocus_log(LOG, "Mouse was pressed, not animating");
+      g_pPreviouslyFocusedWindow = PWINDOW;
       return;
     }
 
