@@ -182,8 +182,12 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
                               Hyprlang::STRING("flash"));
   HyprlandAPI::addDispatcher(PHANDLE, "animatefocused", &flashCurrentWindow);
 
+#ifdef FLASH
   g_mAnimations["flash"] = std::make_unique<CFlash>();
+#endif
+#ifdef SHRINK
   g_mAnimations["shrink"] = std::make_unique<CShrink>();
+#endif
   g_mAnimations["none"] = std::make_unique<IFocusAnimation>();
 
   for (auto &[name, pAnimation] : g_mAnimations) {

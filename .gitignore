@@ -39,3 +39,6 @@ hyprland/
 
 # Misc
 compile_commands.json
+
+# meson
+build/
