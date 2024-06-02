@@ -51,6 +51,10 @@ if get_option('xwayland').disabled()
   add_project_arguments('-DNO_XWAYLAND', language: 'cpp')
 endif
 
+if get_option('dispatch').enabled()
+  add_project_arguments('-DDISPATCH', language: 'cpp')
+endif
+
 shared_module(
   meson.project_name(),
   src,

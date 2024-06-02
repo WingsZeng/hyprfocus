@@ -74,6 +74,7 @@ void flashWindow(PHLWINDOW pWindow) {
   }
 }
 
+#ifdef DISPATCH
 void flashCurrentWindow(std::string) {
   hyprfocus_log(LOG, "Flashing current window");
   static auto *const PHYPRFOCUSENABLED =
@@ -92,6 +93,7 @@ void flashCurrentWindow(std::string) {
 
   flashWindow(g_pPreviouslyFocusedWindow);
 }
+#endif
 
 static void onActiveWindowChange(void *self, std::any data) {
   try {
@@ -237,7 +239,9 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
                               Hyprlang::STRING("none"));
   HyprlandAPI::addConfigValue(
       PHANDLE, "plugin:hyprfocus:animate_coused_by_close", Hyprlang::INT{0});
+#ifdef DISPATCH
   HyprlandAPI::addDispatcher(PHANDLE, "animatefocused", &flashCurrentWindow);
+#endif
 
 #ifdef FLASH
   g_mAnimations["flash"] = std::make_unique<CFlash>();
