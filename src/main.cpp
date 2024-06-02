@@ -12,8 +12,12 @@
 #include <hyprland/src/desktop/Window.hpp>
 #include <hyprland/src/managers/AnimationManager.hpp>
 
+#ifdef FLASH
 #include "Flash.hpp"
+#endif
+#ifdef SHRINK
 #include "Shrink.hpp"
+#endif
 
 PHLWINDOW g_pPreviouslyFocusedWindow = nullptr;
 PHLWINDOW g_pPreviouslyClosedWindow = nullptr;
