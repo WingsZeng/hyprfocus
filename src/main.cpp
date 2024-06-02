@@ -1,6 +1,7 @@
 #include <unordered_set>
 #include "Log.hpp"
-#define WLR_USE_UNSTABLE
+#include <hyprland/src/devices/IPointer.hpp>
+#include <hyprland/src/helpers/WLClasses.hpp>
 
 #include "Globals.hpp"
 #include <hyprland/src/plugins/PluginAPI.hpp>
@@ -182,11 +183,11 @@ static void onActiveWindowChange(void *self, std::any data) {
 
 static void onMouseButton(void *self, std::any data) {
   try {
-    auto *const PWLRMOUSEBUTTONEVENT =
-        std::any_cast<wlr_pointer_button_event *>(data);
+    auto const PWLRMOUSEBUTTONEVENT =
+        std::any_cast<IPointer::SButtonEvent>(data);
     hyprfocus_log(LOG, "Mouse button state: {}",
-                  (int)PWLRMOUSEBUTTONEVENT->state);
-    g_bMouseWasPressed = (int)PWLRMOUSEBUTTONEVENT->state == 1;
+                  (int)PWLRMOUSEBUTTONEVENT.state);
+    g_bMouseWasPressed = (int)PWLRMOUSEBUTTONEVENT.state == 1;
 
   } catch (std::bad_any_cast &e) {
     hyprfocus_log(ERR, "Cast Error: {}", e.what());
